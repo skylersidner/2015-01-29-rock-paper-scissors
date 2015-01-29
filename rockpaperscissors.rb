@@ -4,30 +4,44 @@
 # Intro
 puts "Welcome to Sky's Rock/Paper/Scissors Game!  This is for two players, and winner takes all."
 
-class Player(name)
+class Player
   
   attr_accessor :name, :score
   
-  def initialize
+  def initialize(name)
     @name = name
     @moves = Array.new
     @score = 0
   end
   
-  def track_moves(move)
+  def track_move(move)
     @moves << move
   end
 end
 
 class Game
   
-  attr_accessor :matches_played
+  attr_accessor :games_played
   
-  def initialize
-    @matches_played = 0
+  def initialize(*players)
+    @games_played = 0
+    @who_is_playing = Hash.new
+    players.each |player| do
+      @who_is_playing[player] = 0
+    end
+    rules_of_game
+  end
+  
+  def rules_of_game
+    rules = Hash.new
+    rules {"Rock" => "Scissors", "Paper" => "Rock", "Scissors" => "Paper"}
   end
   
   def new_game
+    
+  end
+  
+  def player_move
     
   end
   
