@@ -25,7 +25,13 @@ class Driver
   end
   
   def winner_of_match
-    # Compare games to determine overall winners of the match
+    for rps.who_is_playing_game.each do |x|
+      
+      #FIX MEEEEE!!!
+      
+    puts "#{rps.get_who_is_playing_game(0)} choice was #{rps.get_who_is_playing_game(0).move}."
+    if rps.winner == "Tie"
+      puts ""
   end
   
   def format_output
@@ -49,13 +55,17 @@ end
 
 class RockPaperScissors
   
-  attr_accessor :games_played, :winner
+  attr_accessor :games_played, :who_is_playing_game :winner
   
   def initialize(*players)
     @games_played = 0
     @who_is_playing_game = Arary.new
     rules_of_game
     @winner = ""
+  end
+  
+  def get_who_is_playing_game(x)
+    @who_is_playing[x]
   end
   
   def rules_of_game
