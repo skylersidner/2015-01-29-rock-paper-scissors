@@ -12,7 +12,8 @@ class Driver
   def new_game(p1, p2)
     rps = RockPaperScissors.new(p1, p2)
     rps.capture_player_moves
-    rps.winner_of_game
+    x = rps.winner_of_game
+    puts "The winner of the games is #{x}!"
   end
   
   def new_match(number_of_games, *players) # WARNING: this will need to be un-splatted before use
@@ -66,26 +67,26 @@ class RockPaperScissors
     @winner = ""
   end
 
-  def capture_player_moves
-    puts "Player 1, choose your move: "
-    # YOU WERE WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  def capture_player_moves # public
+    player_move(@p1)
+    player_move(@p2)
   end
 
-  def player_move(i, player_x)
+  def player_move(player_x) # private
     move = ""
     while @rules.has_key?(move) == false do
-      puts "Player #{i+1}, choose your move (Rock, Paper, Scissors): "
+      puts "#{player_x.name}, choose your move (Rock, Paper, Scissors): "
       move = gets.chomp
     end
-    @players[i].move = (move)
-    puts "Player #{i+1} chose #{@players[i].move}"
+    player_x.move = (move)
+    puts "#{player_x.name} chose #{player_x.move}"
   end
   
-  def winner_of_game
-    if @rules[@players[0].move] == @players[1].move
-      @winner = @players[0]
-    elsif  @rules[@players[1].move] == @players[0].move
-      @winner = @players[1]
+  def winner_of_game # public
+    if @rules[@p1.move] == @p2.move
+      @winner = @p1.name
+    elsif  @rules[@p2.move] == @p1.move
+      @winner = @p2.name
     else
       @winner = "Tie"
     end
