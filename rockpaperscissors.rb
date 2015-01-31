@@ -1,37 +1,37 @@
 # 2015-01-29 Rock/Paper/Scissors Game
-
-
-# Intro
-puts "Welcome to Sky's Rock/Paper/Scissors Game!  This is for two players, and winner takes all."
+require 'pry'
 
 
 class Driver
-  #This class should pull everything to run your program instance
-  
-  
-  def new_game(*players)
-    rps = RockPaperScissors.new(players)
+
+  def initialize
+    @list_of_players = Hash.new
   end
   
-  def new_match(number_of_games, *players)
+  
+  def new_game(p1, p2)
+    rps = RockPaperScissors.new(p1, p2)
+    rps.capture_player_moves
+    rps.winner_of_game
+  end
+  
+  def new_match(number_of_games, *players) # WARNING: this will need to be un-splatted before use
     x = number_of_games
-    for 1..x do
+    for x in 1..[x]
       new_game(players)
     end
-    # @who_is_playing_match = Hash.new
-    # @who_is_playing_game.each |player| do
-    #   @who_is_playing_match[player] = 0
-    # end
   end
   
+   # FIX MEEEEEEEEEEEEEEEEEEEE!
   def winner_of_match
-    for rps.who_is_playing_game.each do |x|
-      
-      #FIX MEEEEE!!!
-      
-    puts "#{rps.get_who_is_playing_game(0)} choice was #{rps.get_who_is_playing_game(0).move}."
+    rps.players.each do |x|
+      puts "#{x}'s choice was #{x.move}."
+    end
     if rps.winner == "Tie"
-      puts ""
+      puts "It was tie game!"
+    else
+      puts "#{rps.winner} is the winner!"
+    end
   end
   
   def format_output
@@ -55,52 +55,46 @@ end
 
 class RockPaperScissors
   
-  attr_accessor :games_played, :who_is_playing_game :winner
+
+  attr_accessor :games_played, :players, :winner
   
-  def initialize(*players)
+  def initialize(p1, p2)
     @games_played = 0
-    @who_is_playing_game = Arary.new
-    rules_of_game
+    @p1 = Player.new(p1)
+    @p2 = Player.new(p2)
+    @rules = {"Rock" => "Scissors", "Paper" => "Rock", "Scissors" => "Paper"}
     @winner = ""
-  end
-  
-  def get_who_is_playing_game(x)
-    @who_is_playing[x]
-  end
-  
-  def rules_of_game
-    rules = Hash.new
-    rules {"Rock" => "Scissors", "Paper" => "Rock", "Scissors" => "Paper"}
   end
 
   def capture_player_moves
-    @who_is_playing_game.each do |x|
-      player_move(x)
-    end
+    puts "Player 1, choose your move: "
+    # YOU WERE WORKING HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   end
 
-  def player_move(player_x)
+  def player_move(i, player_x)
     move = ""
-    while rules.has_key?(move) = false do
-      puts "Player #{player_x}, choose your move (Rock, Paper, Scissors): "
+    while @rules.has_key?(move) == false do
+      puts "Player #{i+1}, choose your move (Rock, Paper, Scissors): "
       move = gets.chomp
     end
-    for player_x.name do
-      player_x.move = move
-    end
+    @players[i].move = (move)
+    puts "Player #{i+1} chose #{@players[i].move}"
   end
   
   def winner_of_game
-    if rules[@who_is_playing[0].move] == @who_is_player[1].move
-      @winner = @who_is_playing[0]
-    elsif  rules[@who_is_playing[1].move] == @who_is_player[0].move
-      @winner = @who_is_playing[1]
+    if @rules[@players[0].move] == @players[1].move
+      @winner = @players[0]
+    elsif  @rules[@players[1].move] == @players[0].move
+      @winner = @players[1]
     else
       @winner = "Tie"
     end
+    @winner
   end
   
-
-  
-
 end
+
+drive = Driver.new
+
+
+binding.pry
