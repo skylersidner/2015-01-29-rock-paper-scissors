@@ -13,7 +13,11 @@ class Driver
     rps = RockPaperScissors.new(p1, p2)
     rps.capture_player_moves
     x = rps.winner_of_game
-    puts "The winner of the games is #{x}!"
+    if x != "Tie"
+      puts "The winner of the game is #{x}!"
+    else
+      puts "It was a tie!"
+    end
   end
   
   def new_match(number_of_games, *players) # WARNING: this will need to be un-splatted before use
