@@ -7,11 +7,20 @@ class Driver
   def initialize(p1, p2)
     @p1 = Player.new(p1)
     @p2 = Player.new(p2)
+    @p1.score = 0
+    @p2.score = 0
   end
   
   def play
-    new_game(@p1, @p2)
-    # new_match(@p1, @p2)
+    puts "How many games do you want to play?"
+    x = gets.chomp.to_i
+    if x < 1
+      puts "That's no fun!"
+    elsif x == 1
+      new_game(@p1, @p2)
+    else
+      new_match(x, @p1, @p2)
+    end
   end
   
   def new_game(p1, p2)
@@ -25,23 +34,20 @@ class Driver
     end
   end
   
-  # FIX MEEEEEEEEEEEEEEEEEEE!
-  def new_match(number_of_games, *players) # WARNING: this will need to be un-splatted before use
-    x = number_of_games
-    for x in 1..[x]
-      new_game(players)
+  def new_match(x, p1, p2)
+    x.times do
+      new_game(p1, p2)
     end
+    winner_of_match
   end
   
-   # FIX MEEEEEEEEEEEEEEEEEEEE!
   def winner_of_match
-    rps.players.each do |x|
-      puts "#{x}'s choice was #{x.move}."
-    end
-    if rps.winner == "Tie"
-      puts "It was tie game!"
+    if @p1.score > @p2.score
+      puts "#{@p1.name} is the winner of the match!"
+    elsif @p2.score > @p2.score
+      puts "#{@p2.name} is the winner of the match!"
     else
-      puts "#{rps.winner} is the winner!"
+      puts "#{@p1.name} and #{@p2.name} had the same score.  The match is a tie!"
     end
   end
   
@@ -85,7 +91,7 @@ class RockPaperScissors
     move = ""
     while @rules.has_key?(move) == false do
       puts "#{player_x.name}, choose your move (Rock, Paper, Scissors): "
-      move.downcase = gets.chomp
+      move = gets.chomp.downcase
     end
     player_x.move = (move)
     puts "#{player_x.name} chose #{player_x.move}"
@@ -94,8 +100,10 @@ class RockPaperScissors
   def winner_of_game # public
     if @rules[@p1.move] == @p2.move
       @winner = @p1.name
+      @p1.score += 1
     elsif  @rules[@p2.move] == @p1.move
       @winner = @p2.name
+      @p2.score += 1
     else
       @winner = "Tie"
     end
