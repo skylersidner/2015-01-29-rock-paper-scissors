@@ -4,10 +4,15 @@ require 'pry'
 
 class Driver
 
-  def initialize
-    @list_of_players = Hash.new
+  def initialize(p1, p2)
+    @p1 = Player.new(p1)
+    @p2 = Player.new(p2)
   end
   
+  def play
+    new_game(@p1, @p2)
+    # new_match(@p1, @p2)
+  end
   
   def new_game(p1, p2)
     rps = RockPaperScissors.new(p1, p2)
@@ -20,6 +25,7 @@ class Driver
     end
   end
   
+  # FIX MEEEEEEEEEEEEEEEEEEE!
   def new_match(number_of_games, *players) # WARNING: this will need to be un-splatted before use
     x = number_of_games
     for x in 1..[x]
@@ -49,7 +55,7 @@ end
 
 class Player
   
-  attr_accessor :name, :score, :move
+  attr_accessor :name, :move, :score
   
   def initialize(name)
     @name = name
@@ -64,10 +70,9 @@ class RockPaperScissors
   attr_accessor :games_played, :players, :winner
   
   def initialize(p1, p2)
-    @games_played = 0
-    @p1 = Player.new(p1)
-    @p2 = Player.new(p2)
-    @rules = {"Rock" => "Scissors", "Paper" => "Rock", "Scissors" => "Paper"}
+    @p1 = p1
+    @p2 = p2
+    @rules = {"rock" => "scissors", "paper" => "rock", "scissors" => "paper"}
     @winner = ""
   end
 
@@ -80,7 +85,7 @@ class RockPaperScissors
     move = ""
     while @rules.has_key?(move) == false do
       puts "#{player_x.name}, choose your move (Rock, Paper, Scissors): "
-      move = gets.chomp
+      move.downcase = gets.chomp
     end
     player_x.move = (move)
     puts "#{player_x.name} chose #{player_x.move}"
@@ -99,7 +104,7 @@ class RockPaperScissors
   
 end
 
-drive = Driver.new
+drive = Driver.new("Sue", "Bob")
 
 
 binding.pry
