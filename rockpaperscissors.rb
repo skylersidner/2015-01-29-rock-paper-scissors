@@ -75,8 +75,7 @@ class Driver
   
   def new_game(p1, p2)
     rps = RockPaperScissors.new(p1, p2)
-    rps.capture_player_moves
-    x = rps.winner_of_game
+    x = rps.determine_winner
     if x != "Tie"
       puts "The winner of the game is #{x}!"
     else
@@ -172,12 +171,9 @@ end
 # Attributes:
 # @p1     - Object: Refers to the Player1 object created in the Driver class.
 # @p2     - Object: Refers to the Player2 object created in the Driver class.
-# @rules  - Hash: Value for each key is the loosing choice.
-# @winner - String: Tracks the winner of each game, by name.
 #
 # Public Methods:
-# #capture_player_moves
-# #winner_of_game
+# #determine_winner
 
 class RockPaperScissors
   
@@ -201,27 +197,69 @@ class RockPaperScissors
   def initialize(p1, p2)
     @p1 = p1
     @p2 = p2
-    @rules = {"rock" => "scissors", "paper" => "rock", "scissors" => "paper"}
-    @winner = ""
   end
   
-  # Public: capture_player_moves
+  # Public: determine_winner
   #
-  # Obtains a move for each player.
+  # Captures moves to determine a winner.
   #
   # Parameters: None.
   #
   # Returns:
-  # Indirect: The string displaying the player's move choice.
+  # Indirect: A string of the winning player's name (or a tie).
   #
   # State Changes: None.
   
-  def capture_player_moves
-    player_move(@p1)
-    player_move(@p2)
+  def determine_winner
+    rules = Rules.new(@p1, @p2)
+    rules.player_move(@p1)
+    rules.player_move(@p2)
+    rules.winner_of_game
   end
   
-  # Private: player_move
+end
+
+# Class: Rules
+#
+# Captures player moves and determines a winner.
+#
+# Attributes:
+# @p1               - Object: Player1 object.
+# @p2               - Object: Player2 object.
+# @valid_moves_list - Array: List of moves available to the player.
+# @rules            - Hash: For boolean comparison of player moves and validation.
+# @winner           - String: Captures the winner player's name (or a tie).
+#
+# Public Methods:
+# #player_move
+# #winner_of_game
+
+class Rules
+  
+  # Public: initialize
+  #
+  # Creates the necessary objects for the class to function.
+  #
+  # Parameters:
+  # p1 - Object: The Player1 object.
+  # p2 - Object: The Player2 object.
+  #
+  # Returns:
+  # The Rules object
+  #
+  # State Changes:
+  # @p1 and @p2 point to the players; @valid_moves_list becomes an array; @rules becomes a hash;
+  # @winner becomes a string.
+  
+  def initialize(p1, p2)
+    @p1 = p1
+    @p2 = p2
+    @valid_moves_list = ["Rock", "Paper", "Scissors"]
+    @rules = {"rock" => "scissors", "paper" => "rock", "scissors" => "paper"}
+    @winner = ""
+  end
+  
+  # Public: player_move
   #
   # Determines a move for a player.
   #
@@ -238,7 +276,10 @@ class RockPaperScissors
   def player_move(player_x)
     move = ""
     while @rules.has_key?(move) == false do
-      puts "#{player_x.name}, choose your move (Rock, Paper, Scissors): "
+      @valid_moves_list.each do |x|
+        puts x
+      end
+      puts "#{player_x.name}, choose your move: "
       move = gets.chomp.downcase
     end
     player_x.move = (move)
