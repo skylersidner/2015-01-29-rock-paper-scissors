@@ -154,8 +154,8 @@ class Player
   # A new player object
   #
   # State Changes:
-  # @name will store the player's name; creates @move to store the player's moves; creates
-  # @score to store the player's score
+  # @name will store the player's name; creates @move to store the player's moves
+  # creates @score to store the player's score
     
   def initialize(name)
     @name = name
