@@ -14,9 +14,9 @@ require 'pry'
 
 class Driver
   
-  # Private: initialize
+  # Private: #initialize
   #
-  # Creates two players for use in games
+  # Creates two players for use in games.
   #
   # Parameters:
   # p1 - String: Name of Player1
@@ -26,16 +26,25 @@ class Driver
   # New Driver instance
   #
   # State Changes:
-  # @p1 and @p2 now point to Player objects
+  # array becomes an array of (AI_)Player objects; @p1 and @p2 now point to (AI_)Player
+  # objects.
   
-  def initialize(p1, p2)
-    @p1 = Player.new(p1)
-    @p2 = Player.new(p2)
+  def initialize(*players)
+    array = Array.new
+    players.each do |name|
+      if name.end_with?("AI")
+        array << AI_Player.new(name)
+      else
+        array << Player.new(name)
+      end
+    end
+    @p1 = array[0]
+    @p2 = array[1]
   end
   
-  # Public: play
+  # Public: #play
   #
-  # Begins playing a match of RPS with each of the Player objects.
+  # Begins playing a match of RPS with each of the (AI_)Player objects.
   #
   # Parameters: None.
   #
@@ -59,7 +68,7 @@ class Driver
     end
   end
   
-  # Private: new_game
+  # Private: #new_game
   #
   # Creates a game and determines a winner (or a tie).
   #
@@ -71,11 +80,11 @@ class Driver
   # A win/tie statement string.
   #
   # State Changes:
-  # Stores a tie or winning player string in local variable x
+  # Stores a tie or winning player string in local variable x.
   
   def new_game(p1, p2)
-    rps = RockPaperScissors.new(p1, p2)
-    x = rps.determine_winner
+    rps = Game.new
+    x = rps.determine_winner(p1, p2)
     if x != "Tie"
       puts "The winner of the game is #{x}!"
     else
@@ -83,12 +92,12 @@ class Driver
     end
   end
   
-  # Private: new_match
+  # Private: #new_match
   #
   # Creates several games of RPS.
   #
   # Parameters:
-  # x   - Integer: Number of games or RPS to be played.
+  # x   - Integer: Number of games of RPS to be played.
   # p1  - Object: Player1 object.
   # p2  - Object: Player2 object.
   #
@@ -104,9 +113,9 @@ class Driver
     winner_of_match
   end
   
-  # Private: winner_of_match
+  # Private: #winner_of_match
   #
-  # Determines the overall match winner, by Player score
+  # Determines the overall match winner, by player score
   #
   # Parameters: None.
   #
@@ -116,11 +125,14 @@ class Driver
   # State Changes: None.
   
   def winner_of_match
+    puts "#{@p1.name}: #{@p1.score}"
+    puts "#{@p2.name}: #{@p2.score}"
     if @p1.score > @p2.score
       puts "#{@p1.name} is the winner of the match!"
-    elsif @p2.score > @p2.score
+    elsif @p2.score > @p1.score
       puts "#{@p2.name} is the winner of the match!"
     else
+
       puts "#{@p1.name} and #{@p2.name} had the same score.  The match is a tie!"
     end
   end
@@ -129,32 +141,35 @@ end
 
 # Class: Player
 #
-# Class to store things about each player of the game
+# Class to store things about each player of the game.
 #
 # Attributes:
 # @name   - String: The name of the player.
 # @move   - String: The current move the player has chosen for that game.
 # @score  - Integer: The player's current score for that match.
 #
-# Public Methods: None.
+# Public Methods:
+# #name, #name=
+# #move, #move=
+# #score, #score=
 
 class Player
   
   attr_accessor :name, :move, :score
 
-  # Private: initalize
+  # Private: #initalize
   #
   # Creates an instance of the Player class.
   #
   # Parameters:
-  # name - String: Name of the player
+  # name - String: Name of the player.
   #
   # Returns:
-  # A new player object
+  # A new player object.
   #
   # State Changes:
   # @name will store the player's name; creates @move to store the player's moves
-  # creates @score to store the player's score
+  # creates @score to store the player's score.
     
   def initialize(name)
     @name = name
@@ -164,85 +179,157 @@ class Player
 
 end
 
-# Class: RockPaperScissors
+# Class: AI_Player
+#
+# Class to store things about each AI player of the game
+#
+# Attributes:
+# @name   - String: The name of the player.
+# @move   - String: The current move the player has chosen for that game.
+# @score  - Integer: The player's current score for that match.
+#
+# Public Methods:
+# #name, #name=
+# #move, #move=
+# #score, #score=
+# #create_move
+
+class AI_Player
+  
+  attr_accessor :name, :move, :score
+
+  # Private: #initalize
+  #
+  # Creates an instance of the Player class.
+  #
+  # Parameters:
+  # name - String: Name of the player.
+  #
+  # Returns:
+  # A new player object.
+  #
+  # State Changes:
+  # @name will store the player's name; creates @move to store the player's moves;
+  # creates @score to store the player's score.
+    
+  def initialize(name)
+    @name = name
+    @move = ""
+    @score = 0
+  end
+  
+  # Public: #create_move
+  #
+  # Generates a valid move for an AI_Player.
+  #
+  # Parameters: None.
+  #
+  # Returns: 
+  # The string just placed into the @move attribute.
+  #
+  # State Changes: 
+  # Creates Random object, prng; generates a random number between 1 and 3 for x;
+  # uses #translate_move method to convert x into a valid move string and
+  # adjusts the @move attribute.
+  
+  def create_move
+    prng = Random.new
+    x = prng.rand(3)
+    @move = translate_move(x)
+  end
+  
+  # Private: #translate_move
+  #
+  # Converts a random number into a valid move string.
+  #
+  # Parameters: 
+  # x - Integer from 1 to 3: Random number generated in #create_move.
+  #
+  # Returns: 
+  # A string based on the Rules_RPS object with the #valid_moves_list accessor.
+  #
+  # State Changes: None.
+  
+  def translate_move(x) #private
+    rules = Rules_RPS.new
+    rules.valid_moves_list[x-1].downcase
+  end
+  
+end
+
+# Class: Game
 #
 # For playing games of Rock, Paper, Scissors.
 #
-# Attributes:
-# @p1     - Object: Refers to the Player1 object created in the Driver class.
-# @p2     - Object: Refers to the Player2 object created in the Driver class.
+# Attributes: None.
 #
 # Public Methods:
 # #determine_winner
 
-class RockPaperScissors
+class Game
   
-  attr_accessor :games_played, :players, :winner
-  
-  # Private: initialize
+  # Private: #initialize
   #
-  # Creates a new RockPaperScissors instance.
+  # Creates a new Game instance.
+  #
+  # Parameters: None.
+  #
+  # Returns:
+  # The Game object.
+  #
+  # State Changes:
+  # @p1 and @p2 refer to the (AI_)Player objects; @rules is initialized for comparing
+  # player moves;
+  # @winner is created to store the name of the winning player.
+  
+  def initialize
+    
+  end
+  
+  # Public: #determine_winner
+  #
+  # Captures moves to determine a winner.
   #
   # Parameters:
   # p1 - Object: The Player1 object.
   # p2 - Object: The Player2 object.
-  #
-  # Returns:
-  # The RockPaperScissors object.
-  #
-  # State Changes:
-  # @p1 and @p2 refer to the Player objects; @rules is initialized for comparing player moves;
-  # @winner is created to store the name of the winning player.
-  
-  def initialize(p1, p2)
-    @p1 = p1
-    @p2 = p2
-  end
-  
-  # Public: determine_winner
-  #
-  # Captures moves to determine a winner.
-  #
-  # Parameters: None.
   #
   # Returns:
   # Indirect: A string of the winning player's name (or a tie).
   #
   # State Changes: None.
   
-  def determine_winner
-    rules = Rules.new(@p1, @p2)
-    rules.player_move(@p1)
-    rules.player_move(@p2)
-    rules.winner_of_game
+  def determine_winner(p1, p2)
+    rules = Rules_RPS.new
+    rules.player_move(p1)
+    rules.player_move(p2)
+    rules.winner_of_game(p1, p2)
   end
   
 end
 
-# Class: Rules
+# Class: Rules_RPS
 #
 # Captures player moves and determines a winner.
 #
 # Attributes:
-# @p1               - Object: Player1 object.
-# @p2               - Object: Player2 object.
 # @valid_moves_list - Array: List of moves available to the player.
 # @rules            - Hash: For boolean comparison of player moves and validation.
 # @winner           - String: Captures the winner player's name (or a tie).
 #
 # Public Methods:
+# #valid_moves_list
 # #player_move
 # #winner_of_game
 
-class Rules
+class Rules_RPS
   
-  # Public: initialize
+  attr_reader :valid_moves_list
+  # Public: #initialize
   #
   # Creates the necessary objects for the class to function.
   #
-  # Parameters:
-  # p1 - Object: The Player1 object.
-  # p2 - Object: The Player2 object.
+  # Parameters: None.
   #
   # Returns:
   # The Rules object
@@ -251,42 +338,44 @@ class Rules
   # @p1 and @p2 point to the players; @valid_moves_list becomes an array; @rules becomes a hash;
   # @winner becomes a string.
   
-  def initialize(p1, p2)
-    @p1 = p1
-    @p2 = p2
+  def initialize
     @valid_moves_list = ["Rock", "Paper", "Scissors"]
     @rules = {"rock" => "scissors", "paper" => "rock", "scissors" => "paper"}
     @winner = ""
   end
   
-  # Public: player_move
+  # Public: #player_move
   #
   # Determines a move for a player.
   #
   # Parameters:
-  # player_x - Object: The Player object.
+  # player_x - Object: The (AI_)Player object.
   #
   # Returns:
   # The string displaying the player's move choice.
   #
   # State Changes:
-  # Captures the choice from the player into the move variable, then converts the Player
+  # Captures the choice from the player into the choice variable, then converts the (AI_)Player
   # object's @move attribute to the same.
   
   def player_move(player_x)
-    move = ""
-    while @rules.has_key?(move) == false do
-      @valid_moves_list.each do |x|
-        puts x
+    choice = ""
+    if player_x.name.end_with?("AI") == true
+      choice = player_x.create_move
+    else
+      while @rules.has_key?(choice) == false do
+        @valid_moves_list.each do |x|
+          puts x
+        end
+        puts "#{player_x.name}, choose your move: "
+        choice = gets.chomp.downcase
       end
-      puts "#{player_x.name}, choose your move: "
-      move = gets.chomp.downcase
     end
-    player_x.move = (move)
+    player_x.move = (choice)
     puts "#{player_x.name} chose #{player_x.move}"
   end
   
-  # Public: winner_of_game
+  # Public: #winner_of_game
   #
   # Determines a winner of the RPS game.
   #
@@ -298,13 +387,13 @@ class Rules
   # State Changes:
   # @winner is set to either "Tie" or the winning player's name.
   
-  def winner_of_game
-    if @rules[@p1.move] == @p2.move
-      @winner = @p1.name
-      @p1.score += 1
-    elsif  @rules[@p2.move] == @p1.move
-      @winner = @p2.name
-      @p2.score += 1
+  def winner_of_game(p1, p2)
+    if @rules[p1.move] == p2.move
+      @winner = p1.name
+      p1.score += 1
+    elsif  @rules[p2.move] == p1.move
+      @winner = p2.name
+      p2.score += 1
     else
       @winner = "Tie"
     end
@@ -313,6 +402,6 @@ class Rules
   
 end
 
-drive = Driver.new("Sue", "Bob")
+drive = Driver.new("SueAI", "BobAI")
 
 binding.pry
