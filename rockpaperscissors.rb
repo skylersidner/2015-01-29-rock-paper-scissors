@@ -44,7 +44,7 @@ class Driver
   
   # Public: #play
   #
-  # Begins playing a match of RPS with each of the (AI_)Player objects.
+  # Begins playing a match of the game with each of the (AI_)Player objects.
   #
   # Parameters: None.
   #
@@ -69,8 +69,18 @@ class Driver
     end
   end
   
-  
-  
+  # Private: #choose_game
+  #
+  # Provides a list of games and captures ruleset for the selection.
+  #
+  # Parameters: None
+  #
+  # Returns:
+  # The ruleset to be used for the match.
+  #
+  # State Changes:
+  # Captures input into x; converts input into a new Rules objet and puts it into
+  # local variable, ruleset.
   
   def choose_game
     puts "Which game would you like to play?"
@@ -89,14 +99,16 @@ class Driver
   # Creates a game and determines a winner (or a tie).
   #
   # Parameters:
-  # p1 - Object: Player1 object.
-  # p2 - Object: Player2 object.
+  # p1      - Object: Player1 object.
+  # p2      - Object: Player2 object.
+  # ruleset - Object: The Rules object for the game.
   #
   # Returns:
   # A win/tie statement string.
   #
   # State Changes:
-  # Stores a tie or winning player string in local variable x.
+  # Creates a new Game object, game; stores a tie or winning player string in
+  # local variable, x.
   
   def new_game(p1, p2, ruleset)
     game = Game.new(ruleset)
@@ -113,9 +125,10 @@ class Driver
   # Creates several games of RPS.
   #
   # Parameters:
-  # x   - Integer: Number of games of RPS to be played.
-  # p1  - Object: Player1 object.
-  # p2  - Object: Player2 object.
+  # x       - Integer: Number of games of RPS to be played.
+  # p1      - Object: Player1 object.
+  # p2      - Object: Player2 object.
+  # ruleset - Object: The Rules object for the game.
   #
   # Returns:
   # Indirect: A win/tie statement string for the match.
@@ -131,7 +144,7 @@ class Driver
   
   # Private: #winner_of_match
   #
-  # Determines the overall match winner, by player score
+  # Determines the overall match winner, by player score.
   #
   # Parameters: None.
   #
@@ -180,7 +193,7 @@ class Player
   # name - String: Name of the player.
   #
   # Returns:
-  # A new player object.
+  # A new Player object.
   #
   # State Changes:
   # @name will store the player's name; creates @move to store the player's moves
@@ -220,7 +233,7 @@ end
 
 # Class: AI_Player
 #
-# Class to store things about each AI player of the game
+# Class to store things about each AI player of the game.
 #
 # Attributes:
 # @name   - String: The name of the player.
@@ -231,7 +244,7 @@ end
 # #name, #name=
 # #move, #move=
 # #score, #score=
-# #create_move
+# #acquire_move
 
 class AI_Player
   
@@ -239,13 +252,13 @@ class AI_Player
 
   # Private: #initalize
   #
-  # Creates an instance of the Player class.
+  # Creates an instance of the AI_Player class.
   #
   # Parameters:
   # name - String: Name of the player.
   #
   # Returns:
-  # A new player object.
+  # A new AI_Player object.
   #
   # State Changes:
   # @name will store the player's name; @move to stores the player's moves;
@@ -302,8 +315,7 @@ class Game
   #
   # State Changes:
   # @p1 and @p2 refer to the (AI_)Player objects; @rules is initialized for comparing
-  # player moves;
-  # @winner is created to store the name of the winning player.
+  # player moves; @winner is created to store the name of the winning player.
   
   def initialize(ruleset)
     @rules = ruleset
@@ -337,7 +349,7 @@ end
 # Attributes:
 # @valid_moves_list - Array: List of moves available to the player; used for validation.
 # @rules            - Hash: For comparison of player moves.
-# @winner           - String: Captures the winner player's name (or a tie).
+# @winner           - String: Captures the winning player's name (or a tie).
 #
 # Public Methods:
 # #winner_of_game
@@ -399,7 +411,7 @@ end
 # Attributes:
 # @valid_moves_list - Array: List of moves available to the player; used for validation.
 # @rules            - Hash: For comparison of player moves.
-# @winner           - String: Captures the winner player's name (or a tie).
+# @winner           - String: Captures the winning player's name (or a tie).
 #
 # Public Methods:
 # #winner_of_game
