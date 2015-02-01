@@ -1,17 +1,53 @@
 # 2015-01-29 Rock/Paper/Scissors Game
 require 'pry'
 
+# Class: Driver
+#
+# Interface for running the game
+#
+# Attributes:
+# @p1 - Object: Creates a Player1 object
+# @p2 - Object: Creates a Player2 object
+#
+# Public Methods:
+# #play
 
 class Driver
-
+  
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+  
   def initialize(p1, p2)
     @p1 = Player.new(p1)
     @p2 = Player.new(p2)
-    @p1.score = 0
-    @p2.score = 0
   end
   
-  def play
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+  
+  def play # public
+    @p1.score = 0
+    @p2.score = 0
     puts "How many games do you want to play?"
     x = gets.chomp.to_i
     if x < 1
@@ -23,7 +59,20 @@ class Driver
     end
   end
   
-  def new_game(p1, p2)
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+  
+  def new_game(p1, p2) # private
     rps = RockPaperScissors.new(p1, p2)
     rps.capture_player_moves
     x = rps.winner_of_game
@@ -34,14 +83,27 @@ class Driver
     end
   end
   
-  def new_match(x, p1, p2)
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+  
+  def new_match(x, p1, p2) # private
     x.times do
       new_game(p1, p2)
     end
     winner_of_match
   end
   
-  def winner_of_match
+  def winner_of_match # private
     if @p1.score > @p2.score
       puts "#{@p1.name} is the winner of the match!"
     elsif @p2.score > @p2.score
@@ -50,30 +112,75 @@ class Driver
       puts "#{@p1.name} and #{@p2.name} had the same score.  The match is a tie!"
     end
   end
-  
-  def format_output
-    # Self explanatory
-  end
-  
-  
+
 end
 
+# Class: Player
+#
+# Class to store things about each player of the game
+#
+# Attributes:
+# @name   - String: The name of the player.
+# @move   - String: The current move the player has chosen for that game.
+# @score  - Integer: The player's current score for that match.
+#
+# Public Methods: None
 
 class Player
   
   attr_accessor :name, :move, :score
-  
+
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+    
   def initialize(name)
     @name = name
     @move = ""
     @score = 0
   end
+
 end
+
+# Class: RockPaperScissors
+#
+# For playing games of Rock, Paper, Scissors
+#
+# Attributes:
+# @p1     - Object: Refers to the Player1 object created in the Driver class.
+# @p2     - Object: Refers to the Player2 object created in the Driver class.
+# @rules  - Hash: Value for each key is the loosing choice.
+# @winner - String: Tracks the winner of each game, by name.
+#
+# Public Methods:
+# #capture_player_moves
+# #winner_of_game
 
 class RockPaperScissors
   
-
   attr_accessor :games_played, :players, :winner
+  
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
   
   def initialize(p1, p2)
     @p1 = p1
@@ -81,13 +188,39 @@ class RockPaperScissors
     @rules = {"rock" => "scissors", "paper" => "rock", "scissors" => "paper"}
     @winner = ""
   end
-
-  def capture_player_moves # public
+  
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+  
+  def capture_player_moves
     player_move(@p1)
     player_move(@p2)
   end
-
-  def player_move(player_x) # private
+  
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+  
+  def player_move(player_x)
     move = ""
     while @rules.has_key?(move) == false do
       puts "#{player_x.name}, choose your move (Rock, Paper, Scissors): "
@@ -97,7 +230,20 @@ class RockPaperScissors
     puts "#{player_x.name} chose #{player_x.move}"
   end
   
-  def winner_of_game # public
+  # Public: 
+  #
+  # 
+  #
+  # Parameters:
+  # 
+  #
+  # Returns:
+  # 
+  #
+  # State Changes:
+  # 
+  
+  def winner_of_game
     if @rules[@p1.move] == @p2.move
       @winner = @p1.name
       @p1.score += 1
@@ -113,6 +259,5 @@ class RockPaperScissors
 end
 
 drive = Driver.new("Sue", "Bob")
-
 
 binding.pry
