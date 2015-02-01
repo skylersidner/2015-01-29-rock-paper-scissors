@@ -57,14 +57,30 @@ class Driver
   def play
     @p1.score = 0
     @p2.score = 0
+    ruleset = choose_game
     puts "How many games do you want to play?"
     x = gets.chomp.to_i
     if x < 1
       puts "That's no fun!"
     elsif x == 1
-      new_game(@p1, @p2)
+      new_game(@p1, @p2, ruleset)
     else
-      new_match(x, @p1, @p2)
+      new_match(x, @p1, @p2, ruleset)
+    end
+  end
+  
+  
+  
+  
+  def choose_game
+    puts "Which game would you like to play?"
+    puts "1 - Rock/Paper/Scissors"
+    puts "2 - Rock/Paper/Scissors/Lizard/Spock"
+    x = gets.chomp.to_i
+    if x == 1
+      ruleset = Rules_RPS.new
+    elsif x == 2
+      ruleset = Rules_RPSLS.new
     end
   end
   
@@ -82,9 +98,9 @@ class Driver
   # State Changes:
   # Stores a tie or winning player string in local variable x.
   
-  def new_game(p1, p2)
-    rps = Game.new
-    x = rps.determine_winner(p1, p2)
+  def new_game(p1, p2, ruleset)
+    game = Game.new(ruleset)
+    x = game.determine_winner(p1, p2)
     if x != "Tie"
       puts "The winner of the game is #{x}!"
     else
@@ -106,9 +122,9 @@ class Driver
   #
   # State Changes: None.
   
-  def new_match(x, p1, p2)
+  def new_match(x, p1, p2, ruleset)
     x.times do
-      new_game(p1, p2)
+      new_game(p1, p2, ruleset)
     end
     winner_of_match
   end
@@ -132,7 +148,6 @@ class Driver
     elsif @p2.score > @p1.score
       puts "#{@p2.name} is the winner of the match!"
     else
-
       puts "#{@p1.name} and #{@p2.name} had the same score.  The match is a tie!"
     end
   end
@@ -177,6 +192,30 @@ class Player
     @score = 0
   end
 
+  # Public: #acquire_move
+  #
+  # Captures a valid move from a player.
+  #
+  # Parameters: None.
+  #
+  # Returns: 
+  # String displaying name of the player and their move.
+  #
+  # State Changes: 
+  # @move captures a valid move input from the player.
+  
+  def acquire_move(ruleset)
+    @move = ""
+    while ruleset.valid_moves_list.include?(@move) == false do
+      ruleset.valid_moves_list.each do |x|
+        puts x.capitalize
+      end
+      puts "#{@name}, choose your move: "
+      @move = gets.chomp.downcase
+    end
+    puts "#{@name} chose #{@move.capitalize}."
+  end
+  
 end
 
 # Class: AI_Player
@@ -209,8 +248,8 @@ class AI_Player
   # A new player object.
   #
   # State Changes:
-  # @name will store the player's name; creates @move to store the player's moves;
-  # creates @score to store the player's score.
+  # @name will store the player's name; @move to stores the player's moves;
+  # @score to stores the player's score;
     
   def initialize(name)
     @name = name
@@ -218,41 +257,24 @@ class AI_Player
     @score = 0
   end
   
-  # Public: #create_move
+  # Public: #acquire_move
   #
   # Generates a valid move for an AI_Player.
   #
   # Parameters: None.
   #
   # Returns: 
-  # The string just placed into the @move attribute.
+  # String displaying name of the player and their move.
   #
   # State Changes: 
-  # Creates Random object, prng; generates a random number between 1 and 3 for x;
-  # uses #translate_move method to convert x into a valid move string and
-  # adjusts the @move attribute.
+  # Creates Random object, prng; generates a random number based on how many valid moves are available for x; uses #translate_move method to convert x into a valid move string and adjusts the @move attribute.
   
-  def create_move
+  def acquire_move(ruleset)
     prng = Random.new
-    x = prng.rand(3)
-    @move = translate_move(x)
-  end
-  
-  # Private: #translate_move
-  #
-  # Converts a random number into a valid move string.
-  #
-  # Parameters: 
-  # x - Integer from 1 to 3: Random number generated in #create_move.
-  #
-  # Returns: 
-  # A string based on the Rules_RPS object with the #valid_moves_list accessor.
-  #
-  # State Changes: None.
-  
-  def translate_move(x) #private
-    rules = Rules_RPS.new
-    rules.valid_moves_list[x-1].downcase
+    number_of_moves = ruleset.valid_moves_list.length
+    x = prng.rand(number_of_moves)
+    @move = ruleset.valid_moves_list[x-1].downcase
+    puts "#{@name} chose #{@move.capitalize}."
   end
   
 end
@@ -268,6 +290,7 @@ end
 
 class Game
   
+  attr_reader :rules
   # Private: #initialize
   #
   # Creates a new Game instance.
@@ -282,8 +305,8 @@ class Game
   # player moves;
   # @winner is created to store the name of the winning player.
   
-  def initialize
-    
+  def initialize(ruleset)
+    @rules = ruleset
   end
   
   # Public: #determine_winner
@@ -300,10 +323,9 @@ class Game
   # State Changes: None.
   
   def determine_winner(p1, p2)
-    rules = Rules_RPS.new
-    rules.player_move(p1)
-    rules.player_move(p2)
-    rules.winner_of_game(p1, p2)
+    p1.acquire_move(@rules)
+    p2.acquire_move(@rules)
+    @rules.winner_of_game(p1, p2)
   end
   
 end
@@ -313,66 +335,34 @@ end
 # Captures player moves and determines a winner.
 #
 # Attributes:
-# @valid_moves_list - Array: List of moves available to the player.
-# @rules            - Hash: For boolean comparison of player moves and validation.
+# @valid_moves_list - Array: List of moves available to the player; used for validation.
+# @rules            - Hash: For comparison of player moves.
 # @winner           - String: Captures the winner player's name (or a tie).
 #
 # Public Methods:
-# #valid_moves_list
-# #player_move
 # #winner_of_game
 
 class Rules_RPS
   
   attr_reader :valid_moves_list
+  
   # Public: #initialize
   #
-  # Creates the necessary objects for the class to function.
+  # Creates the necessary attributes for the class to function.
   #
   # Parameters: None.
   #
   # Returns:
-  # The Rules object
+  # The Rules_RPS object
   #
   # State Changes:
-  # @p1 and @p2 point to the players; @valid_moves_list becomes an array; @rules becomes a hash;
-  # @winner becomes a string.
+  # @valid_moves_list becomes an array of valid moves; @rules becomes a hash where
+  # each key's value is the choice that looses to that key; @winner becomes a string.
   
   def initialize
-    @valid_moves_list = ["Rock", "Paper", "Scissors"]
+    @valid_moves_list = ["rock", "paper", "scissors"]
     @rules = {"rock" => "scissors", "paper" => "rock", "scissors" => "paper"}
     @winner = ""
-  end
-  
-  # Public: #player_move
-  #
-  # Determines a move for a player.
-  #
-  # Parameters:
-  # player_x - Object: The (AI_)Player object.
-  #
-  # Returns:
-  # The string displaying the player's move choice.
-  #
-  # State Changes:
-  # Captures the choice from the player into the choice variable, then converts the (AI_)Player
-  # object's @move attribute to the same.
-  
-  def player_move(player_x)
-    choice = ""
-    if player_x.name.end_with?("AI") == true
-      choice = player_x.create_move
-    else
-      while @rules.has_key?(choice) == false do
-        @valid_moves_list.each do |x|
-          puts x
-        end
-        puts "#{player_x.name}, choose your move: "
-        choice = gets.chomp.downcase
-      end
-    end
-    player_x.move = (choice)
-    puts "#{player_x.name} chose #{player_x.move}"
   end
   
   # Public: #winner_of_game
@@ -402,6 +392,74 @@ class Rules_RPS
   
 end
 
-drive = Driver.new("SueAI", "BobAI")
+# Class: Rules_RPSLS
+#
+# Captures player moves and determines a winner.
+#
+# Attributes:
+# @valid_moves_list - Array: List of moves available to the player; used for validation.
+# @rules            - Hash: For comparison of player moves.
+# @winner           - String: Captures the winner player's name (or a tie).
+#
+# Public Methods:
+# #winner_of_game
+
+class Rules_RPSLS
+  
+  attr_reader :valid_moves_list
+  
+  # Public: #initialize
+  #
+  # Creates the necessary attributes for the class to function.
+  #
+  # Parameters: None.
+  #
+  # Returns:
+  # The Rules_RPSLS object
+  #
+  # State Changes:
+  # @valid_moves_list becomes an array of valid moves; @rules becomes a hash where
+  # each key's value is an array of the choices that loose to that key; @winner becomes
+  # a string.
+  
+  def initialize
+    @valid_moves_list = ["rock", "paper", "scissors", "lizard", "spock"]
+    @rules = Hash.new
+    @rules["rock"] = ["scissors", "lizard"]
+    @rules["paper"] = ["spock", "rock"]
+    @rules["scissors"] = ["paper", "lizard"]
+    @rules["lizard"] = ["paper", "spock"]
+    @rules["spock"] = ["rock", "scissors"]
+    @winner = ""
+  end
+  
+  # Public: #winner_of_game
+  #
+  # Determines a winner of the RPS game.
+  #
+  # Parameters: None.
+  #
+  # Returns:
+  # A "Tie" string or a string of the winning player's name.
+  #
+  # State Changes:
+  # @winner is set to either "Tie" or the winning player's name.
+  
+  def winner_of_game(p1, p2)
+    if @rules[p1.move].include?(p2.move) == true
+      @winner = p1.name
+      p1.score += 1
+    elsif  @rules[p2.move].include?(p1.move) == true
+      @winner = p2.name
+      p2.score += 1
+    else
+      @winner = "Tie"
+    end
+    @winner
+  end
+  
+end
+
+drive = Driver.new("Sue", "BobAI")
 
 binding.pry
