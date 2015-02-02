@@ -311,7 +311,7 @@ class AI_Player
     prng = Random.new
     number_of_moves = ruleset.valid_moves_list.length
     x = prng.rand(number_of_moves)
-    @move = ruleset.valid_moves_list[x-1].downcase
+    @move = ruleset.valid_moves_list[x-1]
     puts "#{@name} chose #{@move.capitalize}."
   end
   
