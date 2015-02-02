@@ -86,7 +86,7 @@ class Driver
   
   def choose_game
     x = 0
-    while x != 1 && x != 2
+    until x == 1 || x == 2
       puts "Which game would you like to play?"
       puts "1 - Rock/Paper/Scissors"
       puts "2 - Rock/Paper/Scissors/Lizard/Spock"
@@ -137,7 +137,6 @@ class Driver
   # local variable, x.
   
   def new_game(p1, p2)
-    puts @rules
     x = determine_winner(p1, p2)
     if x != "Tie"
       puts "The winner of the game is #{x}!"
