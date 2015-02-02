@@ -6,8 +6,9 @@ require 'pry'
 # Interface for running the game
 #
 # Attributes:
-# @p1 - Object: Creates a Player1 object
-# @p2 - Object: Creates a Player2 object
+# @p1     - Object: Creates a Player1 object
+# @p2     - Object: Creates a Player2 object
+# @rules  - Object: Nil at creation but anticipates representing a Rules object.
 #
 # Public Methods:
 # #play
@@ -40,6 +41,7 @@ class Driver
     end
     @p1 = array[0]
     @p2 = array[1]
+    @rules = nil
   end
   
   # Public: #play
@@ -57,15 +59,15 @@ class Driver
   def play
     @p1.score = 0
     @p2.score = 0
-    ruleset = choose_game
+    choose_game
     puts "How many games do you want to play?"
     x = gets.chomp.to_i
     if x < 1
       puts "That's no fun!"
     elsif x == 1
-      new_game(@p1, @p2, ruleset)
+      new_game(@p1, @p2)
     else
-      new_match(x, @p1, @p2, ruleset)
+      new_match(x, @p1, @p2)
     end
   end
   
@@ -83,15 +85,39 @@ class Driver
   # local variable, ruleset.
   
   def choose_game
-    puts "Which game would you like to play?"
-    puts "1 - Rock/Paper/Scissors"
-    puts "2 - Rock/Paper/Scissors/Lizard/Spock"
-    x = gets.chomp.to_i
-    if x == 1
-      ruleset = Rules_RPS.new
-    elsif x == 2
-      ruleset = Rules_RPSLS.new
+    x = 0
+    while x != 1 && x != 2
+      puts "Which game would you like to play?"
+      puts "1 - Rock/Paper/Scissors"
+      puts "2 - Rock/Paper/Scissors/Lizard/Spock"
+      x = gets.chomp.to_i
+      if x == 1
+        @rules = Rules_RPS.new
+      elsif x == 2
+        @rules = Rules_RPSLS.new
+      else
+        puts "That is not a valid choice."
+      end
     end
+  end
+  
+  # Private: #determine_winner
+  #
+  # Captures moves to determine a winner.
+  #
+  # Parameters:
+  # p1 - Object: The Player1 object.
+  # p2 - Object: The Player2 object.
+  #
+  # Returns:
+  # Indirect: A string of the winning player's name (or a tie).
+  #
+  # State Changes: None.
+  
+  def determine_winner(p1, p2)
+    p1.acquire_move(@rules)
+    p2.acquire_move(@rules)
+    @rules.winner_of_game(p1, p2)
   end
   
   # Private: #new_game
@@ -110,9 +136,9 @@ class Driver
   # Creates a new Game object, game; stores a tie or winning player string in
   # local variable, x.
   
-  def new_game(p1, p2, ruleset)
-    game = Game.new(ruleset)
-    x = game.determine_winner(p1, p2)
+  def new_game(p1, p2)
+    puts @rules
+    x = determine_winner(p1, p2)
     if x != "Tie"
       puts "The winner of the game is #{x}!"
     else
@@ -135,9 +161,9 @@ class Driver
   #
   # State Changes: None.
   
-  def new_match(x, p1, p2, ruleset)
+  def new_match(x, p1, p2)
     x.times do
-      new_game(p1, p2, ruleset)
+      new_game(p1, p2)
     end
     winner_of_match
   end
@@ -288,56 +314,6 @@ class AI_Player
     x = prng.rand(number_of_moves)
     @move = ruleset.valid_moves_list[x-1].downcase
     puts "#{@name} chose #{@move.capitalize}."
-  end
-  
-end
-
-# Class: Game
-#
-# For playing games of Rock, Paper, Scissors.
-#
-# Attributes: None.
-#
-# Public Methods:
-# #determine_winner
-
-class Game
-  
-  attr_reader :rules
-  # Private: #initialize
-  #
-  # Creates a new Game instance.
-  #
-  # Parameters: None.
-  #
-  # Returns:
-  # The Game object.
-  #
-  # State Changes:
-  # @p1 and @p2 refer to the (AI_)Player objects; @rules is initialized for comparing
-  # player moves; @winner is created to store the name of the winning player.
-  
-  def initialize(ruleset)
-    @rules = ruleset
-  end
-  
-  # Public: #determine_winner
-  #
-  # Captures moves to determine a winner.
-  #
-  # Parameters:
-  # p1 - Object: The Player1 object.
-  # p2 - Object: The Player2 object.
-  #
-  # Returns:
-  # Indirect: A string of the winning player's name (or a tie).
-  #
-  # State Changes: None.
-  
-  def determine_winner(p1, p2)
-    p1.acquire_move(@rules)
-    p2.acquire_move(@rules)
-    @rules.winner_of_game(p1, p2)
   end
   
 end
